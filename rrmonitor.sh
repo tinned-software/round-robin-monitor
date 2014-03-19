@@ -11,6 +11,8 @@ version=0.1.1
 # Default path value
 HOST_PATH="/"
 
+# Default log path
+LOG_PATH=""
 
 #
 # Parse all parameters
@@ -60,6 +62,11 @@ while [ $# -gt 0 ]; do
 			shift 2
 			;;
 
+		--logpath)
+			LOG_PATH=$2
+			shift 2
+			;;
+
 		# Unnamed parameter        
 		*)
 			echo "Unknown option '$1'"
@@ -93,6 +100,7 @@ if [ "$HELP" -eq "1" ]; then
       echo "      --host         The hostname to check"
       echo "      --path         The file/path on the server to request"
       echo "      --pattern      The pattern to search on the returned content (regex)"
+      echo "      --logpath      Define the path for the logfiles"
       echo "      --format       Define the result format 'text' (default), 'json'"
       echo 
     exit 1
@@ -136,7 +144,7 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -i -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee $HOST_IP".log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl -i -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee "$LOG_PATH$HOST_IP.log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
@@ -147,7 +155,7 @@ do
 	fi
 
 	# check HTTP response code
-	HTTP_CODE=`head -n 6 "$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
+	HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
 	if [ "$HTTP_CODE" != "200" ]
 	then
 		RESULT=''
@@ -174,7 +182,7 @@ do
 			STATUS_SUMMARY="OK"
 		fi
 		# remove log on success
-		#rm $HOST_IP".log"
+		rm "$LOG_PATH$HOST_IP.log"
 	else
 		if [ "$FORMAT" == "json" ]
 		then
@@ -183,7 +191,7 @@ do
 			echo "    Status: NOK , IP: $HOST_IP , Time: $DIFF_TIME"
 		fi
 		# rename log on failure
-		mv $HOST_IP".log" $(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP".log"
+		mv "$LOG_PATH$HOST_IP.log" "$LOG_PATH$(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP.log"
 		STATUS_SUMMARY="NOK"
 	fi
 done
