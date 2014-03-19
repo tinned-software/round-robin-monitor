@@ -16,6 +16,9 @@ HOST_PATH="/"
 # Parse all parameters
 #
 HELP=0
+if [[ $# -lt 2 ]]; then
+	HELP=1
+fi
 while [ $# -gt 0 ]; do
 	case $1 in
 		# General parameter
@@ -93,17 +96,11 @@ fi
 
 
 # change the command used for time calculation of MacOSX
-TIME_CMD="date +%s%N"
 DETECTED_OS_TYPE=`uname -s`
-if [[ "$DETECTED_OS_TYPE" == "Darwin" ]]
-then
-	TIME_CMD="perl -MTime::HiRes -e \"print Time::HiRes::time()\""
-	#TIME_CMD='ruby -e \"puts Time.now.to_f\"'
-fi
 
 
 # resolve host name to IP address
-IP_LIST=`host $HOST_NAME | sed 's/^.*address //'`
+IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
 
 
 
@@ -117,14 +114,18 @@ STATUS_SUMMARY="--"
 # Check for each host
 for HOST_IP in $IP_LIST
 do
-	# get the page content
+	# start the time measurement
 	if [[ "$DETECTED_OS_TYPE" == "Darwin" ]]
 	then
 		START_TIME=`ruby -e "puts Time.now.to_f"`
 	else
 		START_TIME=`date +%s%N`
 	fi
+
+	# execute the request to this server
 	RESULT=`curl -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee $HOST_IP".log" | grep -E "$SEARCH_PATTERN" | wc -l`
+
+	# stop the time measurement
 	if [[ "$DETECTED_OS_TYPE" == "Darwin" ]]
 	then
 		END_TIME=`ruby -e "puts Time.now.to_f"`
@@ -132,15 +133,20 @@ do
 		END_TIME=`date +%s%N`
 	fi
 
+	# calculate the time needed to request the page
 	DIFF_TIME=`echo "1395156785.4709299 - 1395156784.868294" | bc`
 
+	# Check if content is returned
 	if [[ "$RESULT" -gt "0" ]]
 	then
+		# check the requersted return format
 		if [[ "$FORMAT" == "json" ]]; then
 			RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
 		else
 			echo "    Status: OK  , IP: $HOST_IP , Time: $DIFF_TIME"
 		fi
+
+		# define summary status
 		if [[ "$STATUS_SUMMARY" == "--" ]]; then
 			STATUS_SUMMARY="OK"
 		fi
