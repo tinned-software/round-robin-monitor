@@ -107,12 +107,15 @@ DETECTED_OS_TYPE=`uname -s`
 # resolve host name to IP address
 IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
 
+# Get timestamp of monitor run
+MONITOR_TIME=`date "+%s"`
+
 # start output in requested format
 if [ "$FORMAT" == "json" ]
 then
-	RESULT_JSON="{\"host\":\"$HOST_NAME\",\"details\":["
+	RESULT_JSON="{\"host\":\"$HOST_NAME\", \"timestamp\":\"$MONITOR_TIME\", \"details\":["
 else
-	echo "Host: $HOST_NAME"
+	echo "Host: $HOST_NAME (timestemp: $MONITOR_TIME)"
 fi
 STATUS_SUMMARY="--"
 
