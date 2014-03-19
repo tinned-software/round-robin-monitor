@@ -154,7 +154,7 @@ do
 	fi
 
 	# calculate the time needed to request the page
-	DIFF_TIME=`echo "1395156785.4709299 - 1395156784.868294" | bc`
+	DIFF_TIME=`echo "$END_TIME - $START_TIME" | bc`
 	DIFF_TIME=`printf "%f", $DIFF_TIME`
 
 	# Check if content is returned
