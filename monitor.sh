@@ -16,9 +16,6 @@ HOST_PATH="/"
 # Parse all parameters
 #
 HELP=0
-if [[ $# -lt 2 ]]; then
-	HELP=1
-fi
 while [ $# -gt 0 ]; do
 	case $1 in
 		# General parameter
@@ -74,6 +71,14 @@ while [ $# -gt 0 ]; do
 done
 
 
+if [ "$HOST_NAME" == "" ]
+then
+	echo "parameter --host is required."
+	HELP=1
+fi
+
+
+
 # show help message
 if [ "$HELP" -eq "1" ]; then
     echo 
@@ -102,20 +107,25 @@ DETECTED_OS_TYPE=`uname -s`
 # resolve host name to IP address
 IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
 
-
-
-if [[ "$FORMAT" == "json" ]]; then
+# start output in requested format
+if [ "$FORMAT" == "json" ]
+then
 	RESULT_JSON="{\"host\":\"$HOST_NAME\",\"details\":["
 else
 	echo "Host: $HOST_NAME"
 fi
 STATUS_SUMMARY="--"
 
+# set the numeric seperate according to the "en_US" format
+LC_NUMERIC_OLD=$LC_NUMERIC
+LC_NUMERIC="en_US.UTF-8"
+
+
 # Check for each host
 for HOST_IP in $IP_LIST
 do
 	# start the time measurement
-	if [[ "$DETECTED_OS_TYPE" == "Darwin" ]]
+	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
 	then
 		START_TIME=`ruby -e "puts Time.now.to_f"`
 	else
@@ -123,37 +133,48 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee $HOST_IP".log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl -i -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee $HOST_IP".log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
-	if [[ "$DETECTED_OS_TYPE" == "Darwin" ]]
+	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
 	then
 		END_TIME=`ruby -e "puts Time.now.to_f"`
 	else
 		END_TIME=`date +%s%N`
 	fi
 
+	# check HTTP response code
+	HTTP_CODE=`head -n 6 "$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
+	if [ "$HTTP_CODE" != "200" ]
+	then
+		RESULT=''
+	fi
+
 	# calculate the time needed to request the page
 	DIFF_TIME=`echo "1395156785.4709299 - 1395156784.868294" | bc`
+	DIFF_TIME=`printf "%f", $DIFF_TIME`
 
 	# Check if content is returned
-	if [[ "$RESULT" -gt "0" ]]
+	if [ "$RESULT" != "" ]
 	then
 		# check the requersted return format
-		if [[ "$FORMAT" == "json" ]]; then
+		if [ "$FORMAT" == "json" ]
+		then
 			RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
 		else
 			echo "    Status: OK  , IP: $HOST_IP , Time: $DIFF_TIME"
 		fi
 
 		# define summary status
-		if [[ "$STATUS_SUMMARY" == "--" ]]; then
+		if [ "$STATUS_SUMMARY" == "--" ]
+		then
 			STATUS_SUMMARY="OK"
 		fi
 		# remove log on success
-		rm $HOST_IP".log"
+		#rm $HOST_IP".log"
 	else
-		if [[ "$FORMAT" == "json" ]]; then
+		if [ "$FORMAT" == "json" ]
+		then
 			RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
 		else
 			echo "    Status: NOK , IP: $HOST_IP , Time: $DIFF_TIME"
@@ -163,7 +184,13 @@ do
 		STATUS_SUMMARY="NOK"
 	fi
 done
-if [[ "$FORMAT" == "json" ]]; then
+
+# set the number locale back to its original
+LC_NUMERIC=$LC_NUMERIC_OLD
+
+# Finish output based on the requested format
+if [ "$FORMAT" == "json" ]
+then
 	RESULT_JSON=${RESULT_JSON%?}
 	RESULT_JSON=$RESULT_JSON"],\"status\":\"$STATUS_SUMMARY\"}"
 	echo -e $RESULT_JSON
@@ -171,3 +198,9 @@ else
 	echo "Summary: $STATUS_SUMMARY"
 fi
 
+if [ "$STATUS_SUMMARY" == "OK" ]
+then
+	exit 0
+else
+	exit 1
+fi
