@@ -2,17 +2,42 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2012 - 2013
-version=0.2.0
+version=0.3.0
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
 
 
-# Default path value
+
+
+# The path/filename to retrieve from the server. This should at least contain 
+# the "/" which is the default.
 HOST_PATH="/"
 
-# Default log path
+# Output format of the result. Possible values are "text" (default), "json" 
+# and "terse". The terse format will output the "text" format but only if the 
+# summary status is not OK. It will as well contain the content of the failed 
+FORMAT="text"
+
+# Define the logfile path. It is used to store the server response to. In case 
+# of an OK check, the output file is deletect after the check is completed. A 
+# not successfull check will remain where the file name will be of the 
+# following format: <YYYY-MM-DD_hh-mm-ss>_NOK_<HOST_IP>.log
 LOG_PATH=""
+
+# The connect timeout in seconds for the connection attempt. This limit only 
+# applies to the connect phase of the ckeck.
+# The default connect timeoutr is set to 30 seconds.
+CONNECT_TIMEOUT="30"
+
+# Limiting the complete check to a maximum amount of seconds. This will limit 
+# the complete time the operation is allowed to take. This includes the 
+# connection phase.
+# The default check timeout is set to 60 seconds.
+CHECK_TIMEOUT="60"
+
+
+
 
 #
 # Parse all parameters
@@ -58,12 +83,36 @@ while [ $# -gt 0 ]; do
 			;;
 
 		--format)
-			FORMAT=$2
+			case $2 in
+				json)
+					FORMAT="json"
+					;;
+				text)
+					FORMAT="text"
+					;;
+				terse)
+					FORMAT="terse"
+					;;
+				*)
+					HELP=1
+					echo "parameter --format with unknown value."
+					;;
+			esac
 			shift 2
 			;;
 
 		--logpath)
 			LOG_PATH=$2
+			shift 2
+			;;
+
+		--connect-timeout)
+			CONNECT_TIMEOUT=$2
+			shift 2
+			;;
+
+		--check-timeout)
+			CHECK_TIMEOUT=$2
 			shift 2
 			;;
 
@@ -94,14 +143,18 @@ if [ "$HELP" -eq "1" ]; then
     echo "web content is searched for the provided pattern."
     echo 
     echo "Usage: `basename $0` [-hv] [--config filename.conf] [--host hostname] [--path /index.html] [--pattern \"Website Title\"]"
-      echo "  -h  --help         Print this usage and exit"
-      echo "  -v  --version      Print version information and exit"
-      echo "      --config       Configuration file to read parameters from"
-      echo "      --host         The hostname to check"
-      echo "      --path         The file/path on the server to request"
-      echo "      --pattern      The pattern to search on the returned content (regex)"
-      echo "      --logpath      Define the path for the logfiles"
-      echo "      --format       Define the result format 'text' (default), 'json'"
+      echo "  -h  --help              Print this usage and exit"
+      echo "  -v  --version           Print version information and exit"
+      echo "      --config            Configuration file to read parameters from"
+      echo "      --host              The hostname to check"
+      echo "      --path              The file/path on the server to request"
+      echo "      --connect-timeout   The file/path on the server to request"
+      echo "      --check-timeout     The file/path on the server to request"
+      echo "      --pattern           The pattern to search on the returned content (regex)"
+      echo "      --logpath           Define the path for the logfiles"
+      echo "      --format            Define the result format 'text' (default), 'json' and 'terse'."
+      echo "                          The format terse defines that only in case of the summary status not beeing 'OK' output"
+      echo "                          is generated. It also includes the returned content from the failed check(s)."
       echo 
     exit 1
 fi
@@ -119,12 +172,17 @@ IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
 MONITOR_TIME=`date "+%s"`
 
 # start output in requested format
-if [ "$FORMAT" == "json" ]
-then
-	RESULT_JSON="{\"host\":\"$HOST_NAME\", \"timestamp\":\"$MONITOR_TIME\", \"details\":["
-else
-	echo "Host: $HOST_NAME (timestemp: $MONITOR_TIME)"
-fi
+case $FORMAT in
+	json)
+		RESULT_JSON="{\"host\":\"$HOST_NAME\", \"timestamp\":\"$MONITOR_TIME\", \"details\":["
+		;;
+	text)
+		echo "Host: $HOST_NAME (timestemp: $MONITOR_TIME)"
+		;;
+	terse)
+		RESULT_TERSE="Host: $HOST_NAME (timestemp: $MONITOR_TIME)\n"
+		;;
+esac
 STATUS_SUMMARY="--"
 
 # set the numeric seperate according to the "en_US" format
@@ -133,6 +191,7 @@ LC_NUMERIC="en_US.UTF-8"
 
 
 # Check for each host
+RESULT_TERSE_DETAILS=''
 for HOST_IP in $IP_LIST
 do
 	# start the time measurement
@@ -144,7 +203,7 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -i -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee "$LOG_PATH$HOST_IP.log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee "$LOG_PATH$HOST_IP.log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
@@ -169,12 +228,17 @@ do
 	if [ "$RESULT" != "" ]
 	then
 		# check the requersted return format
-		if [ "$FORMAT" == "json" ]
-		then
-			RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
-		else
-			echo "    Status: OK  , IP: $HOST_IP , Time: $DIFF_TIME"
-		fi
+		case $FORMAT in
+			json)
+				RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
+				;;
+			text)
+				echo "    Status: OK  , IP: $HOST_IP , Time: $DIFF_TIME"
+				;;
+			terse)
+				RESULT_TERSE=$RESULT_TERSE"    Status: OK  , IP: $HOST_IP , Time: $DIFF_TIME\n"
+				;;
+		esac
 
 		# define summary status
 		if [ "$STATUS_SUMMARY" == "--" ]
@@ -184,14 +248,26 @@ do
 		# remove log on success
 		rm "$LOG_PATH$HOST_IP.log"
 	else
-		if [ "$FORMAT" == "json" ]
-		then
-			RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"OK\"},"
-		else
-			echo "    Status: NOK , IP: $HOST_IP , Time: $DIFF_TIME"
-		fi
+		# check the requersted return format
+		case $FORMAT in
+			json)
+				RESULT_JSON=$RESULT_JSON"{\"ip\":\"$HOST_IP\",\"time\":\"$DIFF_TIME\",\"status\":\"NOK\"},"
+				;;
+			text)
+				echo "    Status: NOK , IP: $HOST_IP , Time: $DIFF_TIME"
+				;;
+			terse)
+				RESULT_TERSE=$RESULT_TERSE"    Status: NOK , IP: $HOST_IP , Time: $DIFF_TIME\n"
+				;;
+		esac
+
+		# Add details fro the terse output
+		RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log"`
+		RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"\n\n**********$HOST_IP**********\n$RESULT_LOG_CONTENT\n"
+
 		# rename log on failure
 		mv "$LOG_PATH$HOST_IP.log" "$LOG_PATH$(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP.log"
+
 		STATUS_SUMMARY="NOK"
 	fi
 done
@@ -200,18 +276,27 @@ done
 LC_NUMERIC=$LC_NUMERIC_OLD
 
 # Finish output based on the requested format
-if [ "$FORMAT" == "json" ]
-then
-	RESULT_JSON=${RESULT_JSON%?}
-	RESULT_JSON=$RESULT_JSON"],\"status\":\"$STATUS_SUMMARY\"}"
-	echo -e $RESULT_JSON
-else
-	echo "Summary: $STATUS_SUMMARY"
-fi
+# check the requersted return format
+case $FORMAT in
+	json)
+		RESULT_JSON=${RESULT_JSON%?}
+		RESULT_JSON=$RESULT_JSON"],\"status\":\"$STATUS_SUMMARY\"}"
+		echo -e $RESULT_JSON
+		;;
+	text)
+		echo "Summary: $STATUS_SUMMARY"
+		;;
+	terse)
+		RESULT_TERSE=$RESULT_TERSE"Summary: $STATUS_SUMMARY\n"
+		;;
+esac
+
 
 if [ "$STATUS_SUMMARY" == "OK" ]
 then
 	exit 0
 else
+	printf "$RESULT_TERSE"
+	echo "$RESULT_TERSE_DETAILS"
 	exit 1
 fi
