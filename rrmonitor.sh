@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
-# @copyright Copyright (c) 2012 - 2013
-version=0.3.0
+# @copyright Copyright (c) 2014
+version=0.3.1
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -199,7 +199,7 @@ do
 	then
 		START_TIME=`ruby -e "puts Time.now.to_f"`
 	else
-		START_TIME=`date +%s%N`
+		START_TIME=`date +%s.%N`
 	fi
 
 	# execute the request to this server
@@ -210,7 +210,7 @@ do
 	then
 		END_TIME=`ruby -e "puts Time.now.to_f"`
 	else
-		END_TIME=`date +%s%N`
+		END_TIME=`date +%s.%N`
 	fi
 
 	# check HTTP response code
