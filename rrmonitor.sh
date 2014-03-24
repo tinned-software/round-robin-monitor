@@ -27,14 +27,20 @@ LOG_PATH=""
 
 # The connect timeout in seconds for the connection attempt. This limit only 
 # applies to the connect phase of the ckeck.
-# The default connect timeoutr is set to 30 seconds.
-CONNECT_TIMEOUT="30"
+# The default connect timeoutr is set to 10 seconds.
+CONNECT_TIMEOUT="10"
 
 # Limiting the complete check to a maximum amount of seconds. This will limit 
 # the complete time the operation is allowed to take. This includes the 
 # connection phase.
 # The default check timeout is set to 60 seconds.
 CHECK_TIMEOUT="60"
+
+# This trigger-timeout defines the timeout after which the check is considered 
+# failed. Even with the rest of the check beeing OK, if this time is exeeded, 
+# the test is considered failed.
+# The default check timeout is set to 30 seconds.
+TRIGGER_TIMEOUT="30"
 
 
 
@@ -116,6 +122,11 @@ while [ $# -gt 0 ]; do
 			shift 2
 			;;
 
+		--trigger-timeout)
+			TRIGGER_TIMEOUT=$2
+			shift 2
+			;;
+
 		# Unnamed parameter        
 		*)
 			echo "Unknown option '$1'"
@@ -148,8 +159,9 @@ if [ "$HELP" -eq "1" ]; then
       echo "      --config            Configuration file to read parameters from"
       echo "      --host              The hostname to check"
       echo "      --path              The file/path on the server to request"
-      echo "      --connect-timeout   The file/path on the server to request"
-      echo "      --check-timeout     The file/path on the server to request"
+      echo "      --connect-timeout   The curl timeout for the connect"
+      echo "      --check-timeout     The curl timeout for the complete request incl. connect"
+      echo "      --trigger-timeout   The trigger time after which the test is considered failed."
       echo "      --pattern           The pattern to search on the returned content (regex)"
       echo "      --logpath           Define the path for the logfiles"
       echo "      --format            Define the result format 'text' (default), 'json' and 'terse'."
@@ -222,10 +234,15 @@ do
 
 	# calculate the time needed to request the page
 	DIFF_TIME=`echo "$END_TIME - $START_TIME" | bc`
+
+	# check if the trigger time is exceeded
+	TRIGGER_EXCEEDED=`echo "$TRIGGER_TIMEOUT - $DIFF_TIME" | bc | grep "-" |wc -l`
+
+	# format the calculated time difference
 	DIFF_TIME=`printf "%f", $DIFF_TIME`
 
 	# Check if content is returned
-	if [ "$RESULT" != "" ]
+	if [ "$RESULT" != "" ] && [ "$TRIGGER_EXCEEDED" -lt "1" ]
 	then
 		# check the requersted return format
 		case $FORMAT in
@@ -261,9 +278,15 @@ do
 				;;
 		esac
 
-		# Add details fro the terse output
-		RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log"`
-		RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"\n\n**********$HOST_IP**********\n$RESULT_LOG_CONTENT\n"
+		RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"\n\n**********$HOST_IP**********\n"
+		if [ "$RESULT" == "" ]; then
+			# Add details fro the terse output
+			RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log"`
+			RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"$RESULT_LOG_CONTENT\n"
+		fi
+		if [ "$TRIGGER_EXCEEDED" -gt "0" ]; then
+			RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"rrmonitor: Trigger timeout exceeded.\n"
+		fi
 
 		# rename log on failure
 		mv "$LOG_PATH$HOST_IP.log" "$LOG_PATH$(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP.log"
@@ -298,5 +321,7 @@ then
 else
 	printf "$RESULT_TERSE"
 	echo "$RESULT_TERSE_DETAILS"
+	RESULT_TERSE_DETAILS=`echo "$RESULT_TERSE_DETAILS" | sed 's/\%/%%/g'`
+	printf "$RESULT_TERSE_DETAILS\n"
 	exit 1
 fi
