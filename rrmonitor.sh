@@ -43,6 +43,11 @@ CHECK_TIMEOUT="60"
 TRIGGER_TIMEOUT="30"
 
 
+# Enable the notification via XMPP. This requires sendxmpp to be installed. For
+# more details about sendxmpp see http://sendxmpp.platon.sk/
+XMPP_NOTIFICATION="NO"
+
+
 
 
 #
@@ -319,8 +324,12 @@ if [ "$STATUS_SUMMARY" == "OK" ]
 then
 	exit 0
 else
-	printf "$RESULT_TERSE"
-	RESULT_TERSE_DETAILS=`echo "$RESULT_TERSE_DETAILS" | sed 's/\%/%%/g'`
-	printf "$RESULT_TERSE_DETAILS\n"
+	RESULT_OUTPUT=`echo "$RESULT_TERSE$RESULT_TERSE_DETAILS" | sed 's/\%/%%/g'`
+	printf "$RESULT_OUTPUT\n"
+	if [[ "$XMPP_NOTIFICATION" == "YES" ]]
+	then
+		printf "$RESULT_OUTPUT\n" | sendxmpp --username $XMPP_SEND_USER --jserver $XMPP_SERVER --password $XMPP_SEND_PASS $XMPP_OPTIONS $XMPP_RCPT_USER -o $XMPP_RCPT_DOMAIN
+	fi
 	exit 1
 fi
+

@@ -46,3 +46,21 @@ CHECK_TIMEOUT="60"
 # the test is considered failed.
 # The default check timeout is set to 30 seconds.
 TRIGGER_TIMEOUT="30"
+
+
+# Enable the notification via XMPP. This requires sendxmpp to be installed. For
+# more details about sendxmpp see http://sendxmpp.platon.sk/
+XMPP_NOTIFICATION="NO"
+
+# The sending XMPP account credentials (username, password and XMPP server).
+XMPP_SEND_USER="sender-username"
+XMPP_SEND_PASS="user-password"
+XMPP_SERVER="talk.google.com"
+
+# Additional options for the sendxmpp command like "--tls" as required by gtalk.
+XMPP_OPTIONS="--tls"
+
+# The recipient username and domain.
+XMPP_RCPT_USER="recipient-username"
+XMPP_RCPT_DOMAIN="gmail.com"
+
