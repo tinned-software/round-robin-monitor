@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.0
+version=0.4.1
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -326,7 +326,7 @@ then
 else
 	RESULT_OUTPUT=`echo "$RESULT_TERSE$RESULT_TERSE_DETAILS" | sed 's/\%/%%/g'`
 	printf "$RESULT_OUTPUT\n"
-	if [[ "$XMPP_NOTIFICATION" == "YES" ]]
+	if [ "$XMPP_NOTIFICATION" == "YES" ]
 	then
 		printf "$RESULT_OUTPUT\n" | /usr/bin/sendxmpp --username $XMPP_SEND_USER --jserver $XMPP_SERVER --password $XMPP_SEND_PASS $XMPP_OPTIONS $XMPP_RCPT_USER -o $XMPP_RCPT_DOMAIN
 	fi
