@@ -41,3 +41,8 @@ CONNECT_TIMEOUT="30"
 # The default check timeout is set to 60 seconds.
 CHECK_TIMEOUT="60"
 
+# This trigger-timeout defines the timeout after which the check is considered 
+# failed. Even with the rest of the check beeing OK, if this time is exeeded, 
+# the test is considered failed.
+# The default check timeout is set to 30 seconds.
+TRIGGER_TIMEOUT="30"
