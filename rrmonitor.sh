@@ -320,7 +320,6 @@ then
 	exit 0
 else
 	printf "$RESULT_TERSE"
-	echo "$RESULT_TERSE_DETAILS"
 	RESULT_TERSE_DETAILS=`echo "$RESULT_TERSE_DETAILS" | sed 's/\%/%%/g'`
 	printf "$RESULT_TERSE_DETAILS\n"
 	exit 1
