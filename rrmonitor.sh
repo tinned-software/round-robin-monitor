@@ -2,13 +2,16 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.1
+version=0.4.3
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
 
 
 
+# define the DNS server to use. When you do not want to use the systems default 
+# dns serers, you can specify them here. To use system defaut keep this empty.
+HOST_DNS_SERVER=""
 
 # The path/filename to retrieve from the server. This should at least contain 
 # the "/" which is the default.
@@ -183,7 +186,7 @@ DETECTED_OS_TYPE=`uname -s`
 
 
 # resolve host name to IP address
-IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
+IP_LIST=`host $HOST_NAME $HOST_DNS_SERVER | grep "address" | sed 's/^.*address //'`
 
 # Get timestamp of monitor run
 MONITOR_TIME=`date "+%s"`
