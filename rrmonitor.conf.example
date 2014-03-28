@@ -64,3 +64,57 @@ XMPP_OPTIONS="--tls"
 XMPP_RCPT_USER="recipient-username"
 XMPP_RCPT_DOMAIN="gmail.com"
 
+
+# enable the storage of the monitor data into a RRDtool database. This  
+# requires the RRDtool from http://oss.oetiker.ch/rrdtool/ to be installed.
+RRDTOOL_ENABLE="NO"
+
+# RRDtool database path. In this directory the script will generate and store 
+# RRDtool databases.
+RRDTOOL_DBPATH="dbs/"
+
+# RRD database settings. Based on the interval of the monitor and the amount 
+# of entries, the time stored in the db is defined. When the monitor runs every 
+# 5 minutes and the graph should have one month worth of data (31 days) we need 
+# 8928 entries in the database.
+#
+# Time between measurements (seconds)
+RRDTOOL_STEP_TIME=300
+# Heartbeat, the maximum time between measurements (seconds)
+RRDTOOL_STEP_TIME_MISSING=600
+# Number of entries to keep
+RRDTOOL_ENTRIES=8928
+
+
+# The script will automatically regenerate the graph for the monitor. This 
+# setting defines the directory to sore the generated graphs in.
+RRDTOOL_GRAPH_PATH="graph/"
+
+# Settings for the grapth generation. This are directly the RRDtool parameter 
+# used to generate the graph.
+
+# timeframe for the graph (24 hors, 31 days)
+RRDTOOL_TIMEFRAME=(
+	86400
+	2678400
+	)
+# timeframe lable for the graph (24 hours, 31 days)
+RRDTOOL_TIMEFRAME_LABLE=(
+	"24 days"
+	"31 days"
+	)
+
+# Define colors for the graph lines. The specified colers should be as 
+# much as IP addresses configured for the roud-robin DNS entry or more.
+RRDTOOL_GRAPH_COLORS=(
+	D53F00		# 1 	red
+	E4901E		# 2 	orange
+	5896FF		# 3 	blue
+	53C623		# 4 	green
+	999999		# 5 	grey
+)
+
+# The size of the graph image generated.
+RRDTOOL_GRAPH_HEIGHT=200
+RRDTOOL_GRAPH_WIDTH=1000
+

@@ -2,13 +2,17 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.1
+version=0.4.2
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
 
 
 
+
+# define the DNS server to use. When you do not want to use the systems default 
+# dns serers, you can specify them here. To use system defaut keep this empty.
+HOST_DNS_SERVER="8.8.8.8"
 
 # The path/filename to retrieve from the server. This should at least contain 
 # the "/" which is the default.
@@ -49,6 +53,7 @@ XMPP_NOTIFICATION="NO"
 
 
 
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 #
 # Parse all parameters
@@ -177,13 +182,15 @@ if [ "$HELP" -eq "1" ]; then
 fi
 
 
+# load the rrdtool functions
+. $SCRIPT_PATH/rrmonitor_rrdtool.sh
 
 # change the command used for time calculation of MacOSX
 DETECTED_OS_TYPE=`uname -s`
 
 
 # resolve host name to IP address
-IP_LIST=`host $HOST_NAME | grep "address" | sed 's/^.*address //'`
+IP_LIST=`host $HOST_NAME $HOST_DNS_SERVER | grep "address" | sed 's/^.*address //'`
 
 # Get timestamp of monitor run
 MONITOR_TIME=`date "+%s"`
@@ -206,6 +213,17 @@ STATUS_SUMMARY="--"
 LC_NUMERIC_OLD=$LC_NUMERIC
 LC_NUMERIC="en_US.UTF-8"
 
+
+if [[ "$RRDTOOL_ENABLE" == "YES" ]]
+then
+	for HOST_IP in $IP_LIST
+	do
+		if [[ ! -f "${RRDTOOL_DBPATH}${HOST_IP}.rrd" ]]
+		then
+			rrdtool_create $HOST_IP
+		fi
+	done
+fi
 
 # Check for each host
 RESULT_TERSE_DETAILS=''
@@ -244,7 +262,12 @@ do
 	TRIGGER_EXCEEDED=`echo "$TRIGGER_TIMEOUT - $DIFF_TIME" | bc | grep "-" |wc -l`
 
 	# format the calculated time difference
-	DIFF_TIME=`printf "%f", $DIFF_TIME`
+	DIFF_TIME=`printf "%f" $DIFF_TIME`
+
+	# if the rrdtool db is enabled, update the database
+	if [[ "$RRDTOOL_ENABLE" == "YES" ]]; then
+		rrdtool_update $MONITOR_TIME $HOST_IP $DIFF_TIME
+	fi
 
 	# Check if content is returned
 	if [ "$RESULT" != "" ] && [ "$TRIGGER_EXCEEDED" -lt "1" ]
@@ -318,6 +341,12 @@ case $FORMAT in
 		RESULT_TERSE=$RESULT_TERSE"Summary: $STATUS_SUMMARY\n"
 		;;
 esac
+
+# if the rrdtool db is enabled, update the database
+if [[ "$RRDTOOL_ENABLE" == "YES" ]]
+then
+	rrdtool_graph "$IP_LIST"
+fi
 
 
 if [ "$STATUS_SUMMARY" == "OK" ]

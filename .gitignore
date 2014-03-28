@@ -2,5 +2,12 @@
 .DS_Store
 ._*
 
+# ignore the config file (not the example)
+rrmonitor.conf
+
 # ignore logfiles
 *.log
+
+#ignore rrd and png images
+db/*.rrd
+graph/*.png
