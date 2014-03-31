@@ -89,6 +89,11 @@ RRDTOOL_STEP_TIME_MISSING=600
 # Number of entries to keep
 RRDTOOL_ENTRIES=8928
 
+
+# enable the generation of the graphs from the RRDtool database. This  
+# requires the RRDtool from http://oss.oetiker.ch/rrdtool/ to be installed.
+RRDTOOL_GRAPH_ENABLE="NO"
+
 # The script will automatically regenerate the graph for the monitor. This 
 # setting defines the directory to sore the generated graphs in.
 RRDTOOL_GRAPH_PATH="graph/"
@@ -97,12 +102,12 @@ RRDTOOL_GRAPH_PATH="graph/"
 # used to generate the graph.
 
 # timeframe for the graph (24 hors, 31 days)
-RRDTOOL_TIMEFRAME=(
+RRDTOOL_GRAPH_TIMEFRAME=(
 	86400
 	2678400
 	)
 # timeframe lable for the graph (24 hours, 31 days)
-RRDTOOL_TIMEFRAME_LABLE=(
+RRDTOOL_GRAPH_TIMEFRAME_LABLE=(
 	"24 days"
 	"31 days"
 	)

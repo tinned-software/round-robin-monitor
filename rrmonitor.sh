@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.3
+version=0.4.4
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -343,7 +343,7 @@ case $FORMAT in
 esac
 
 # if the rrdtool db is enabled, update the database
-if [[ "$RRDTOOL_ENABLE" == "YES" ]]
+if [[ "$RRDTOOL_GRAPH_ENABLE" == "YES" ]]
 then
 	rrdtool_graph "$IP_LIST"
 fi

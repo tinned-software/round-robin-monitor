@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.0.2
+version=0.1.0
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -12,7 +12,6 @@ if [[ "$RRDTOOL_CMD" == "" ]]
 then
 	RRDTOOL_CMD="rrdtool"
 fi
-echo "*** path to rrdtool ... $RRDTOOL_CMD"
 
 function rrdtool_create
 {
@@ -67,10 +66,10 @@ function rrdtool_graph
 	done
 
 
-	for (( i=0; i<${#RRDTOOL_TIMEFRAME[@]}; i++ ))
+	for (( i=0; i<${#RRDTOOL_GRAPH_TIMEFRAME[@]}; i++ ))
 	do
-		START_TIME=$(($END_TIME-${RRDTOOL_TIMEFRAME[$i]}))
-		INTERVAL=${RRDTOOL_TIMEFRAME_LABLE[$i]}
+		START_TIME=$(($END_TIME-${RRDTOOL_GRAPH_TIMEFRAME[$i]}))
+		INTERVAL=${RRDTOOL_GRAPH_TIMEFRAME_LABLE[$i]}
 		GRAPH_DETAILS="(Generated: $GEN_DATE, Interval: $INTERVAL)"
 
 		RESULT=`$RRDTOOL_CMD graph $RRDTOOL_GRAPH_PATH/rrmonitor_$INTERVAL.png \
