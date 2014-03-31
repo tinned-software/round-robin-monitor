@@ -8,8 +8,11 @@ version=0.0.2
 #
 
 # Path to the rrdtool binary
-RRD_CMD="/usr/local/bin/rrdtool"
-
+if [[ "$RRDTOOL_CMD" == "" ]]
+then
+	RRDTOOL_CMD="rrdtool"
+fi
+echo "*** path to rrdtool ... $RRDTOOL_CMD"
 
 function rrdtool_create
 {
@@ -20,7 +23,7 @@ function rrdtool_create
 	START_TIME=`date +%s`
 
 	# create RRD with an entry every 5 monites and a everage 
-	$RRD_CMD create ${RRDTOOL_DBPATH}${IP_ADDRESS}.rrd --start $START_TIME --step=$RRDTOOL_STEP_TIME \
+	$RRDTOOL_CMD create ${RRDTOOL_DBPATH}${IP_ADDRESS}.rrd --start $START_TIME --step=$RRDTOOL_STEP_TIME \
 		DS:value:GAUGE:$RRDTOOL_STEP_TIME_MISSING:U:U \
 		RRA:AVERAGE:0.5:1:$RRDTOOL_ENTRIES}
 }
@@ -38,13 +41,14 @@ function rrdtool_update
 	# Get the parameter 2, the VALUE
 	VALUE=$3
 
-	$RRD_CMD update ${RRDTOOL_DBPATH}${IP_ADDRESS}.rrd $CURRENT_TIME:${VALUE}
+	$RRDTOOL_CMD update ${RRDTOOL_DBPATH}${IP_ADDRESS}.rrd $CURRENT_TIME:${VALUE}
 }
 
 
 
 function rrdtool_graph
 {
+	echo "*** Generate graph ... "
 	# get parameters as array (IP LIST)
 	IP_LIST=(`echo "$@"  | tr ' ' '\n' | sort`)
 
@@ -69,7 +73,7 @@ function rrdtool_graph
 		INTERVAL=${RRDTOOL_TIMEFRAME_LABLE[$i]}
 		GRAPH_DETAILS="(Generated: $GEN_DATE, Interval: $INTERVAL)"
 
-		RESULT=`$RRD_CMD graph $RRDTOOL_GRAPH_PATH/rrmonitor_$INTERVAL.png \
+		RESULT=`$RRDTOOL_CMD graph $RRDTOOL_GRAPH_PATH/rrmonitor_$INTERVAL.png \
 			--start $START_TIME --end $END_TIME \
 			--title="Round-Robin-Monitor $GRAPH_DETAILS" \
 			--width $RRDTOOL_GRAPH_WIDTH --height $RRDTOOL_GRAPH_HEIGHT \
@@ -79,6 +83,7 @@ function rrdtool_graph
 			--units-exponent 1 \
 			--imginfo '' \
 			$LINE`
-
+		echo "### RESULT"
+		echo "$RESULT"
 	done
 }

@@ -69,9 +69,13 @@ XMPP_RCPT_DOMAIN="gmail.com"
 # requires the RRDtool from http://oss.oetiker.ch/rrdtool/ to be installed.
 RRDTOOL_ENABLE="NO"
 
+# Define the path to the rrdtool executable. If not speficied, the rrdtool will 
+# be called without path information. example /usr/bin/rrdtool
+RRDTOOL_CMD=""
+
 # RRDtool database path. In this directory the script will generate and store 
 # RRDtool databases.
-RRDTOOL_DBPATH="dbs/"
+RRDTOOL_DBPATH="db/"
 
 # RRD database settings. Based on the interval of the monitor and the amount 
 # of entries, the time stored in the db is defined. When the monitor runs every 
@@ -84,7 +88,6 @@ RRDTOOL_STEP_TIME=300
 RRDTOOL_STEP_TIME_MISSING=600
 # Number of entries to keep
 RRDTOOL_ENTRIES=8928
-
 
 # The script will automatically regenerate the graph for the monitor. This 
 # setting defines the directory to sore the generated graphs in.
