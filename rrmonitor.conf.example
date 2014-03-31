@@ -101,14 +101,14 @@ RRDTOOL_GRAPH_PATH="graph/"
 # Settings for the grapth generation. This are directly the RRDtool parameter 
 # used to generate the graph.
 
-# timeframe for the graph (12 hours, 24 hors, 7 days, 31 days)
+# timeframe for the graph (12 hours, 24 hours, 7 days, 31 days)
 RRDTOOL_GRAPH_TIMEFRAME=(
 	43200
 	86400
 	604800
 	2678400
 	)
-# timeframe lable for the graph (24 hours, 31 days)
+# timeframe lable for the graph (12 hours, 24 hours, 7 days, 31 days)
 RRDTOOL_GRAPH_TIMEFRAME_LABLE=(
 	"12 hours"
 	"24 hours"
@@ -124,7 +124,7 @@ RRDTOOL_GRAPH_COLORS=(
 	53C623		# 	green
 	999999		# 	grey
 	E4901E		# 	orange
-)
+	)
 
 # The size of the graph image generated.
 RRDTOOL_GRAPH_HEIGHT=200
