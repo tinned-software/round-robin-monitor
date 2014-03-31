@@ -101,25 +101,29 @@ RRDTOOL_GRAPH_PATH="graph/"
 # Settings for the grapth generation. This are directly the RRDtool parameter 
 # used to generate the graph.
 
-# timeframe for the graph (24 hors, 31 days)
+# timeframe for the graph (12 hours, 24 hors, 7 days, 31 days)
 RRDTOOL_GRAPH_TIMEFRAME=(
+	43200
 	86400
+	604800
 	2678400
 	)
 # timeframe lable for the graph (24 hours, 31 days)
 RRDTOOL_GRAPH_TIMEFRAME_LABLE=(
-	"24 days"
+	"12 hours"
+	"24 hours"
+	"7 days"
 	"31 days"
 	)
 
 # Define colors for the graph lines. The specified colers should be as 
 # much as IP addresses configured for the roud-robin DNS entry or more.
 RRDTOOL_GRAPH_COLORS=(
-	D53F00		# 1 	red
-	E4901E		# 2 	orange
-	5896FF		# 3 	blue
-	53C623		# 4 	green
-	999999		# 5 	grey
+	D53F00		# 	red
+	5896FF		# 	blue
+	53C623		# 	green
+	999999		# 	grey
+	E4901E		# 	orange
 )
 
 # The size of the graph image generated.

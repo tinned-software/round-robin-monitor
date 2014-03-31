@@ -47,7 +47,6 @@ function rrdtool_update
 
 function rrdtool_graph
 {
-	echo "*** Generate graph ... "
 	# get parameters as array (IP LIST)
 	IP_LIST=(`echo "$@"  | tr ' ' '\n' | sort`)
 
@@ -69,7 +68,7 @@ function rrdtool_graph
 	for (( i=0; i<${#RRDTOOL_GRAPH_TIMEFRAME[@]}; i++ ))
 	do
 		START_TIME=$(($END_TIME-${RRDTOOL_GRAPH_TIMEFRAME[$i]}))
-		INTERVAL=${RRDTOOL_GRAPH_TIMEFRAME_LABLE[$i]}
+		INTERVAL=`echo "${RRDTOOL_GRAPH_TIMEFRAME_LABLE[$i]}" | sed 's/ /_/g'`
 		GRAPH_DETAILS="(Generated: $GEN_DATE, Interval: $INTERVAL)"
 
 		RESULT=`$RRDTOOL_CMD graph $RRDTOOL_GRAPH_PATH/rrmonitor_$INTERVAL.png \
@@ -82,7 +81,5 @@ function rrdtool_graph
 			--units-exponent 1 \
 			--imginfo '' \
 			$LINE`
-		echo "### RESULT"
-		echo "$RESULT"
 	done
 }
