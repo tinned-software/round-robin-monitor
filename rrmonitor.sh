@@ -197,10 +197,10 @@ case $FORMAT in
 		RESULT_JSON="{\"host\":\"$HOST_NAME\", \"timestamp\":\"$MONITOR_TIME\", \"details\":["
 		;;
 	text)
-		echo "Host: $HOST_NAME (timestemp: $MONITOR_TIME)"
+		echo "Host: $HOST_NAME (timestamp: $MONITOR_TIME)"
 		;;
 	terse)
-		RESULT_TERSE="Host: $HOST_NAME (timestemp: $MONITOR_TIME)\n"
+		RESULT_TERSE="Host: $HOST_NAME (timestamp: $MONITOR_TIME)\n"
 		;;
 esac
 STATUS_SUMMARY="--"
