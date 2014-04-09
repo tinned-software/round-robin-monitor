@@ -75,7 +75,6 @@ function rrdtool_graph
 			--start $START_TIME --end $END_TIME \
 			--title="Round-Robin-Monitor $GRAPH_DETAILS" \
 			--width $RRDTOOL_GRAPH_WIDTH --height $RRDTOOL_GRAPH_HEIGHT \
-			--legend-position=south \
 			--force-rules-legend \
 			--slope-mode \
 			--units-exponent 1 \
