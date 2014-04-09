@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.4
+version=0.4.5
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -309,7 +309,7 @@ do
 		RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"\n\n**********$HOST_IP**********\n"
 		if [ "$RESULT" == "" ]; then
 			# Add details fro the terse output
-			RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log"`
+			RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log" | grep -vE "% Total|Dload|--:--:--"`
 			RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"$RESULT_LOG_CONTENT\n"
 		fi
 		if [ "$TRIGGER_EXCEEDED" -gt "0" ]; then
