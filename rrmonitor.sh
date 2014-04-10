@@ -185,7 +185,9 @@ fi
 # load the rrdtool functions
 . $SCRIPT_PATH/rrmonitor_rrdtool.sh
 
-# change the command used for time calculation of MacOSX
+# change the command used according to the OS specifics
+# Mac OS X ... Darwin
+# Linux ...... Linux
 DETECTED_OS_TYPE=`uname -s`
 
 
@@ -249,7 +251,12 @@ do
 	fi
 
 	# check HTTP response code
-	HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
+	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
+	then
+		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
+	else
+		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -r 's/^.* ([0-9]{3}) .*$/\1/'`
+	fi
 	if [ "$HTTP_CODE" != "200" ]
 	then
 		RESULT=''
