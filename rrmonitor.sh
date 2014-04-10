@@ -9,6 +9,9 @@ version=0.4.6
 
 
 
+# define the DNS server to use. When you do not want to use the systems default 
+# dns serers, you can specify them here. To use system defaut keep this empty.
+HOST_DNS_SERVER=""
 
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.
