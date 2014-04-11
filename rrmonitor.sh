@@ -364,7 +364,7 @@ else
 	printf "$RESULT_OUTPUT\n"
 	if [ "$XMPP_NOTIFICATION" == "YES" ]
 	then
-		$MONITORING_HOST=`/bin/hostname -f`
+		MONITORING_HOST=`/bin/hostname -f`
 		printf "Monitoring host: $MONITORING_HOST\n$RESULT_OUTPUT\n" | /usr/bin/sendxmpp --username $XMPP_SEND_USER --jserver $XMPP_SERVER --password $XMPP_SEND_PASS $XMPP_OPTIONS $XMPP_RCPT_USER -o $XMPP_RCPT_DOMAIN
 	fi
 	exit 1
