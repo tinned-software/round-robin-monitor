@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.7
+version=0.4.8
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -243,10 +243,9 @@ do
 	then
 		# Check if host IP is an IPv6 address
 		IS_IP6=`echo "$HOST_IP" |grep "\:" |wc -l`
-		if [[ "$is_IP6" -ge "1" ]]
+		if [[ "$IS_IP6" -ge "1" ]]
 		then
 			# skip the check for the IPv6 address
-			echo "skip IPv6 address ... $HOST_IP"
 			continue
 		fi
 	fi
