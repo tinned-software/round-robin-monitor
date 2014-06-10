@@ -17,6 +17,10 @@ HOST_DNS_SERVER=""
 # dns serers, you can specify them here. To use system defaut keep this empty.
 HOST_DNS_SERVER="8.8.8.8"
 
+# Disable checking IPv6 addresses. This can be used if the monitoring host does 
+# not have IPv6 connectivity to avoid false positives.
+IGNORE_IP6="NO"
+
 # The path/filename to retrieve from the server. This should at least contain 
 # the "/" which is the default.
 HOST_PATH="/"
@@ -234,6 +238,19 @@ fi
 RESULT_TERSE_DETAILS=''
 for HOST_IP in $IP_LIST
 do
+	# Check if IPv6 addresses should be ignored
+	if [[ "$IGNORE_IP6" == "YES" ]]
+	then
+		# Check if host IP is an IPv6 address
+		IS_IP6=`echo "$HOST_IP" |grep "\:" |wc -l`
+		if [[ "$is_IP6" -ge "1" ]]
+		then
+			# skip the check for the IPv6 address
+			echo "skip IPv6 address ... $HOST_IP"
+			continue
+		fi
+	fi
+
 	# start the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
 	then

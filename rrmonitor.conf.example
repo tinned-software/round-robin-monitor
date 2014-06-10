@@ -16,6 +16,10 @@ HOST_NAME="host.example.com"
 # dns serers, you can specify them here. To use system defaut keep this empty.
 HOST_DNS_SERVER=""
 
+# Disable checking IPv6 addresses. This can be used if the monitoring host does 
+# not have IPv6 connectivity to avoid false positives.
+IGNORE_IP6="NO"
+
 # The path/filename to retrieve from the server. This should at least contain 
 # the "/" which is the default.
 HOST_PATH="/"
