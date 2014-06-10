@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.1.1
+version=0.1.2
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -12,6 +12,7 @@ if [[ "$RRDTOOL_CMD" == "" ]]
 then
 	RRDTOOL_CMD="rrdtool"
 fi
+DS_NAME="value"
 
 function rrdtool_create
 {
@@ -27,7 +28,7 @@ function rrdtool_create
 
 	# create RRD with an entry every 5 monites and a everage 
 	$RRDTOOL_CMD create ${RRDTOOL_DBPATH}${IP_NAME}.rrd --start $START_TIME --step=$RRDTOOL_STEP_TIME \
-		DS:$IP_NAME:GAUGE:$RRDTOOL_STEP_TIME_MISSING:U:U \
+		DS:$DS_NAME:GAUGE:$RRDTOOL_STEP_TIME_MISSING:U:U \
 		RRA:AVERAGE:0.5:1:$RRDTOOL_ENTRIES
 }
 
@@ -71,10 +72,10 @@ function rrdtool_graph
 	for (( i=0; i<${#IP_LIST[@]}; i++ ))
 	do
 		IP_NAME=`echo "${IP_LIST[$i]}" | sed 's/[:\.]/_/g'`
-		REG=${IP_LIST[$i]}
-		REG_SPECIAL=`echo "$REG" | sed 's/\./_/g'`
+		REG=`echo "${IP_LIST[$i]}" | sed 's/:/\\\:/g'`
+		REG_SPECIAL=`echo "$REG" | sed 's/[:\.]/_/g'`
 		COLOR=${RRDTOOL_GRAPH_COLORS[$i]}
-		LINE="$LINE DEF:$REG_SPECIAL=${RRDTOOL_DBPATH}$IP_NAME.rrd:$IP_NAME:AVERAGE LINE:$REG_SPECIAL#$COLOR:$REG "
+		LINE="$LINE DEF:$REG_SPECIAL=${RRDTOOL_DBPATH}$IP_NAME.rrd:$DS_NAME:AVERAGE LINE:$REG_SPECIAL#$COLOR:$REG "
 	done
 
 

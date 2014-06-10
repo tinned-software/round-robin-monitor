@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.6
+version=0.4.7
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -227,6 +227,10 @@ if [[ "$RRDTOOL_ENABLE" == "YES" ]]
 then
 	for HOST_IP in $IP_LIST
 	do
+		# replace . or : in ip address to have a valid filename
+		HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
+
+		# Check if rrd file already exists
 		if [[ ! -f "${RRDTOOL_DBPATH}${HOST_IP}.rrd" ]]
 		then
 			rrdtool_create $HOST_IP
@@ -251,6 +255,9 @@ do
 		fi
 	fi
 
+	# replace . or : in ip address to have a valid filename
+	HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
+
 	# start the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
 	then
@@ -260,7 +267,7 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" $HOST_IP 2>&1 | tee "$LOG_PATH$HOST_IP.log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" "$HOST_IP:80" 2>&1 | tee "$LOG_PATH$HOST_IP_NAME.log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
@@ -273,9 +280,9 @@ do
 	# check HTTP response code
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
 	then
-		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
+		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP_NAME.log" | grep "HTTP\/.* 200 OK" | sed -E 's/^.* ([0-9]{3}) .*$/\1/'`
 	else
-		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP.log" | grep "HTTP\/.* 200 OK" | sed -r 's/^.* ([0-9]{3}) .*$/\1/'`
+		HTTP_CODE=`head -n 6 "$LOG_PATH$HOST_IP_NAME.log" | grep "HTTP\/.* 200 OK" | sed -r 's/^.* ([0-9]{3}) .*$/\1/'`
 	fi
 	if [ "$HTTP_CODE" != "200" ]
 	then
@@ -318,7 +325,7 @@ do
 			STATUS_SUMMARY="OK"
 		fi
 		# remove log on success
-		rm "$LOG_PATH$HOST_IP.log"
+		rm "$LOG_PATH$HOST_IP_NAME.log"
 	else
 		# check the requersted return format
 		case $FORMAT in
@@ -336,7 +343,7 @@ do
 		RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"\n\n**********$HOST_IP**********\n"
 		if [ "$RESULT" == "" ]; then
 			# Add details fro the terse output
-			RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP.log" | grep -vE "% Total|Dload|--:--:--"`
+			RESULT_LOG_CONTENT=`cat "$LOG_PATH$HOST_IP_NAME.log" | grep -vE "% Total|Dload|--:--:--"`
 			RESULT_TERSE_DETAILS=$RESULT_TERSE_DETAILS"$RESULT_LOG_CONTENT\n"
 		fi
 		if [ "$TRIGGER_EXCEEDED" -gt "0" ]; then
@@ -344,7 +351,7 @@ do
 		fi
 
 		# rename log on failure
-		mv "$LOG_PATH$HOST_IP.log" "$LOG_PATH$(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP.log"
+		mv "$LOG_PATH$HOST_IP_NAME.log" "$LOG_PATH$(date "+%Y-%m-%d_%H-%M-%S_NOK_")$HOST_IP_NAME.log"
 
 		STATUS_SUMMARY="NOK"
 	fi
