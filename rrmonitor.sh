@@ -227,10 +227,6 @@ if [[ "$RRDTOOL_ENABLE" == "YES" ]]
 then
 	for HOST_IP in $IP_LIST
 	do
-		# replace . or : in ip address to have a valid filename
-		HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
-
-		# Check if rrd file already exists
 		if [[ ! -f "${RRDTOOL_DBPATH}${HOST_IP}.rrd" ]]
 		then
 			rrdtool_create $HOST_IP
@@ -247,15 +243,16 @@ do
 	then
 		# Check if host IP is an IPv6 address
 		IS_IP6=`echo "$HOST_IP" |grep "\:" |wc -l`
-		if [[ "$IS_IP6" -ge "1" ]]
+		if [[ "$is_IP6" -ge "1" ]]
 		then
 			# skip the check for the IPv6 address
+			echo "skip IPv6 address ... $HOST_IP"
 			continue
 		fi
 	fi
 
-	# replace . or : in ip address to have a valid filename
-	HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
+	# replace : and . for the log file name
+	HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'
 
 	# start the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
@@ -266,7 +263,7 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" "$HOST_IP:80" 2>&1 | tee "$LOG_PATH$HOST_IP_NAME.log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" $HOST_IP:80 2>&1 | tee "$LOG_PATH$HOST_IP_NAME.log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
