@@ -15,7 +15,7 @@ HOST_DNS_SERVER=""
 
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.
-HOST_DNS_SERVER="8.8.8.8"
+HOST_DNS_SERVER=""
 
 # Disable checking IPv6 addresses. This can be used if the monitoring host does 
 # not have IPv6 connectivity to avoid false positives.
