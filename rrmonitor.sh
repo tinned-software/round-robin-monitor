@@ -252,7 +252,7 @@ do
 	fi
 
 	# replace : and . for the log file name
-	HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'
+	HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
 
 	# start the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
