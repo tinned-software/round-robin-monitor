@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.8
+version=0.4.9
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -227,7 +227,8 @@ if [[ "$RRDTOOL_ENABLE" == "YES" ]]
 then
 	for HOST_IP in $IP_LIST
 	do
-		if [[ ! -f "${RRDTOOL_DBPATH}${HOST_IP}.rrd" ]]
+		HOST_IP_NAME=`echo "$HOST_IP" | sed 's/[:\.]/_/g'`
+		if [[ ! -f "${RRDTOOL_DBPATH}${HOST_IP_NAME}.rrd" ]]
 		then
 			rrdtool_create $HOST_IP
 		fi

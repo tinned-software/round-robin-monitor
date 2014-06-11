@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.1.2
+version=0.2.0
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -26,7 +26,7 @@ function rrdtool_create
 	START_TIME=`date +%s`
 	START_TIME=$((START_TIME-$RRDTOOL_STEP_TIME))
 
-	# create RRD with an entry every 5 monites and a everage 
+	# create RRD with an entry every 5 monites and a everage
 	$RRDTOOL_CMD create ${RRDTOOL_DBPATH}${IP_NAME}.rrd --start $START_TIME --step=$RRDTOOL_STEP_TIME \
 		DS:$DS_NAME:GAUGE:$RRDTOOL_STEP_TIME_MISSING:U:U \
 		RRA:AVERAGE:0.5:1:$RRDTOOL_ENTRIES
@@ -51,6 +51,7 @@ function rrdtool_update
 	then
 		rrdtool_create $IP_ADDRESS
 	fi
+
 	$RRDTOOL_CMD update ${RRDTOOL_DBPATH}${IP_NAME}.rrd $CURRENT_TIME:${VALUE}
 }
 
