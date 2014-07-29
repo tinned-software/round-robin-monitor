@@ -206,7 +206,7 @@ DETECTED_OS_TYPE=`uname -s`
 
 
 # resolve host name to IP address
-if [[ UTILIZE_HOSTS == "YES" ]]; then
+if [[ "$UTILIZE_HOSTS" == "YES" ]]; then
 	IP_LIST=`getent ahosts blog.tinned-software.net | awk '{print $1}' | uniq`
 else
 	IP_LIST=`host $HOST_NAME $HOST_DNS_SERVER | grep "address" | sed 's/^.*address //'`
