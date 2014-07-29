@@ -16,6 +16,13 @@ HOST_NAME="host.example.com"
 # dns serers, you can specify them here. To use system defaut keep this empty.
 HOST_DNS_SERVER=""
 
+# The command used to resolve the hostname "host" does not utilize the 
+# /etc/hosts file. This switch is added to switch between the "host" 
+# command (using the $HOST_DNS_SERVER setting) and the "getent ahosts" command. 
+# To use the /etc/hosts while resolfing the hostname set this to YES. When this 
+# is set to YES, the $HOST_DNS_SERVER setting is not used.
+UTILIZE_HOSTS="YES"
+
 # Disable checking IPv6 addresses. This can be used if the monitoring host does 
 # not have IPv6 connectivity to avoid false positives.
 IGNORE_IP6="NO"

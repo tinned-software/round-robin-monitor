@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.4.9
+version=0.5.0
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -16,6 +16,13 @@ HOST_DNS_SERVER=""
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.
 HOST_DNS_SERVER=""
+
+# The command used to resolve the hostname "host" does not utilize the 
+# /etc/hosts file. This switch is added to switch between the "host" 
+# command (using the $HOST_DNS_SERVER setting) and the "getent ahosts" command. 
+# To use the /etc/hosts while resolfing the hostname set this to YES. When this 
+# is set to YES, the $HOST_DNS_SERVER setting is not used.
+UTILIZE_HOSTS="NO"
 
 # Disable checking IPv6 addresses. This can be used if the monitoring host does 
 # not have IPv6 connectivity to avoid false positives.
@@ -199,7 +206,11 @@ DETECTED_OS_TYPE=`uname -s`
 
 
 # resolve host name to IP address
-IP_LIST=`host $HOST_NAME $HOST_DNS_SERVER | grep "address" | sed 's/^.*address //'`
+if [[ UTILIZE_HOSTS == "YES" ]]; then
+	IP_LIST=`getent ahosts blog.tinned-software.net | awk '{print $1}' | uniq`
+else
+	IP_LIST=`host $HOST_NAME $HOST_DNS_SERVER | grep "address" | sed 's/^.*address //'`
+fi
 
 # Get timestamp of monitor run
 MONITOR_TIME=`date "+%s"`
