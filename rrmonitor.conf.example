@@ -43,7 +43,7 @@ FORMAT="text"
 # of an OK check, the output file is deletect after the check is completed. A 
 # not successfull check will remain where the file name will be of the 
 # following format: <YYYY-MM-DD_hh-mm-ss>_NOK_<HOST_IP>.log
-LOG_PATH="log/"
+LOG_PATH="/var/log/rrmonitor/"
 
 # The connect timeout in seconds for the connection attempt. This limit only 
 # applies to the connect phase of the ckeck.
@@ -90,7 +90,7 @@ RRDTOOL_CMD=""
 
 # RRDtool database path. In this directory the script will generate and store 
 # RRDtool databases.
-RRDTOOL_DBPATH="db/"
+RRDTOOL_DBPATH="/var/lib/rrmonitor/db/"
 
 # RRD database settings. Based on the interval of the monitor and the amount 
 # of entries, the time stored in the db is defined. When the monitor runs every 
@@ -111,7 +111,7 @@ RRDTOOL_GRAPH_ENABLE="NO"
 
 # The script will automatically regenerate the graph for the monitor. This 
 # setting defines the directory to sore the generated graphs in.
-RRDTOOL_GRAPH_PATH="graph/"
+RRDTOOL_GRAPH_PATH="/var/lib/rrmonitor/graph/"
 
 # Settings for the grapth generation. This are directly the RRDtool parameter 
 # used to generate the graph.
