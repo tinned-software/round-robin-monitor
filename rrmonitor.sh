@@ -2,16 +2,15 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.5.0
+version=0.5.1
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
 
 
-
-# define the DNS server to use. When you do not want to use the systems default 
-# dns serers, you can specify them here. To use system defaut keep this empty.
-HOST_DNS_SERVER=""
+# The host name to monitor. This hostname is resolved and each returned IP 
+# address is checked individually.
+#HOST_NAME=""
 
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.

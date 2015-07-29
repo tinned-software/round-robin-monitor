@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.2.0
+version=0.2.1
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -66,7 +66,7 @@ function rrdtool_graph
 
 	# get the current date - end date for the graph
 	END_TIME=`date +%s`
-	GEN_DATE=`date +"%Y-%m-%d %T"`
+	GEN_DATE=`date +"%Y-%m-%d %T %Z"`
 
 	# get all IP addresses for this monitor and add them into the list
 	LINE=""
