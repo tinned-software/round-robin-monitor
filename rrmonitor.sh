@@ -2,7 +2,7 @@
 #
 # @author Gerhard Steinbeis (info [at] tinned-software [dot] net)
 # @copyright Copyright (c) 2014
-version=0.5.1
+version=0.6.0
 # @license http://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3
 # @package monitoring
 #
@@ -11,6 +11,7 @@ version=0.5.1
 # The host name to monitor. This hostname is resolved and each returned IP 
 # address is checked individually.
 #HOST_NAME=""
+HOST_PORT="80"
 
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.
@@ -52,6 +53,11 @@ CONNECT_TIMEOUT="10"
 # connection phase.
 # The default check timeout is set to 60 seconds.
 CHECK_TIMEOUT="60"
+
+# Set additional options for the curl command to retrieve the content of the 
+# website. The possible options is available in the curl man page. The example 
+# shows the -L option allowing curl to follow redirects.
+CURL_OPTIONS="-L"
 
 # This trigger-timeout defines the timeout after which the check is considered 
 # failed. Even with the rest of the check beeing OK, if this time is exeeded, 
@@ -98,6 +104,11 @@ while [ $# -gt 0 ]; do
 
 		--host)
 			HOST_NAME=$2
+			shift 2
+			;;
+
+		--port)
+			HOST_PORT=$2
 			shift 2
 			;;
 
@@ -181,6 +192,7 @@ if [ "$HELP" -eq "1" ]; then
       echo "  -v  --version           Print version information and exit"
       echo "      --config            Configuration file to read parameters from"
       echo "      --host              The hostname to check"
+      echo "      --port              The port to use for the check"
       echo "      --path              The file/path on the server to request"
       echo "      --connect-timeout   The curl timeout for the connect"
       echo "      --check-timeout     The curl timeout for the complete request incl. connect"
@@ -273,7 +285,7 @@ do
 	fi
 
 	# execute the request to this server
-	RESULT=`curl -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" $HOST_IP:80 2>&1 | tee "$LOG_PATH$HOST_IP_NAME.log" | grep -E "$SEARCH_PATTERN" | wc -l`
+	RESULT=`curl $CURL_OPTIONS -i --connect-timeout $CONNECT_TIMEOUT --max-time $CHECK_TIMEOUT -H "Host: $HOST_NAME" $HOST_IP:$HOST_PORT 2>&1 | tee "$LOG_PATH$HOST_IP_NAME.log" | grep -E "$SEARCH_PATTERN" | wc -l`
 
 	# stop the time measurement
 	if [ "$DETECTED_OS_TYPE" == "Darwin" ]
