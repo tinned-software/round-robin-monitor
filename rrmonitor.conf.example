@@ -13,6 +13,12 @@
 HOST_NAME="host.example.com"
 HOST_PORT="80"
 
+# Set the url schema to be used when connecting to the server. When using 
+# https:// this script will report a certificate missmatch as the connection is 
+# explicitly made via IP address which is very likely not listed in the 
+# certificate. To avoid it, add the "--insecure" option into the CURL_OPTIONS.
+URL_SCHEMA="http://"
+
 # define the DNS server to use. When you do not want to use the systems default 
 # dns serers, you can specify them here. To use system defaut keep this empty.
 HOST_DNS_SERVER=""
