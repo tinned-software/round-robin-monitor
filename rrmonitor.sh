@@ -324,9 +324,12 @@ do
 
 	# if the rrdtool db is enabled, update the database
 	if [[ "$RRDTOOL_ENABLE" == "YES" ]]; then
-		rrdtool_update $MONITOR_TIME $HOST_IP $DIFF_TIME
+		# Do not update the rrd database if the resulting value exceeded the CHECK_TIMEOUT
+		if [[ "$DIFF_TIME" < "$CHECK_TIMEOUT" ]]; then
+			rrdtool_update $MONITOR_TIME $HOST_IP $DIFF_TIME
+		fi
 	fi
-
+	
 	# Check if content is returned
 	if [ "$RESULT" != "" ] && [ "$TRIGGER_EXCEEDED" -lt "1" ]
 	then
