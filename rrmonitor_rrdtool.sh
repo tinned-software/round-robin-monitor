@@ -93,7 +93,6 @@ function rrdtool_graph
 			--force-rules-legend \
 			--slope-mode \
 			--units-exponent 1 \
-			--imginfo '' \
 			$LINE`
 	done
 }
